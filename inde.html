@@ -1,0 +1,736 @@
+<?php
+include 'config.php';
+function generateCoockie($length){
+$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+$numChars = strlen($chars);
+$string = '';
+for ($i = 0; $i < $length; $i++) {
+$string .= substr($chars, rand(1, $numChars) - 1, 1);
+}
+$string='u'.$string;
+return $string;
+}
+
+if (!isset($_COOKIE)){
+	$unik=false;
+	while (!$unik){
+		$cook=generateCoockie(30);
+		$form=generateCoockie(30);
+		$p6='SELECT count(*) FROM coockie WHERE coockie="'.$cook.'" OR formid="'.$form.'"';
+		$cpo=$db->query($p6);
+		$cpro=mysqli_fetch_array($cpo);
+		if ($cpro[0]==0){
+			$unik=true;
+		}
+	}
+	$lt=time()+3600*24*15;
+	$p6='INSERT INTO coockie(coockie, formid, lifetime) VALUES ("'.$cook.'", "'.$form.'",'.$lt.')';
+	$cpo=$db->query($p6);
+	setcookie("user",$cook,time()+3600*24*14);
+}
+else{
+	$cook=$_COOKIE['user'];
+	$p6='SELECT count(*) FROM coockie WHERE coockie="'.$cook.'"';
+	$cpo=$db->query($p6);
+	$cpro=mysqli_fetch_array($cpo);
+	if ($cpro[0]==0){
+		$unik=false;
+		while (!$unik){
+			$cook=generateCoockie(30);
+			$form=generateCoockie(30);
+			$p6='SELECT count(*) FROM coockie WHERE coockie="'.$cook.'" OR formid="'.$form.'"';
+			$cpo=$db->query($p6);
+			$cpro=mysqli_fetch_array($cpo);
+			if ($cpro[0]==0){
+				$unik=true;
+			}
+		}
+		$lt=time()+3600*24*15;
+		$p6='INSERT INTO coockie(coockie, formid, lifetime) VALUES ("'.$cook.'", "'.$form.'",'.$lt.')';
+		$cpo=$db->query($p6);
+		setcookie("user", $cook, time()+3600*24*14,'/', 'condicam.ru', 0);
+	}
+	else{
+		$lt=time()+3600*24*15;
+		$p7='SELECT formid FROM coockie WHERE coockie="'.$cook.'"';
+		$cpo=$db->query($p7);
+		$cpro=mysqli_fetch_array($cpo);
+		$form=$cpro[0];
+		$p7='UPDATE coockie SET lifetime='.$lt.' WHERE coockie="'.$cook.'"';
+		$cpo=$db->query($p7);
+		setcookie("user",$cook,time()+3600*24*14,'/', 'condicam.ru', 0);
+	}
+}
+header("Content-Type:text/html;charset=UTF8");
+$uri=urldecode($_SERVER['REQUEST_URI']);
+$request=explode('/', $uri, 10);
+$lasthref='https://condicam.ru/'.$request[1].'/'.$request[2];
+if ($request[1]=='glavnaya'){
+	$meta='<meta name="robots" content="index, follow"/>';
+	$otkr='';
+	$zakr='';
+	$cr='gl';
+	$cpage='1';
+	$ckolvo='0';
+	$sost=0;
+	$title='Главная';
+}
+if ($request[1]=='conditioners'){
+	$otkr='<!—noindex—><!—googleoff: index—>';
+	$zakr='<!—googleon: index—><!—/noindex—>';
+	$cr='kon';
+	$qs='SELECT count(*) FROM condit';
+	$cpo=$db->query($qs);
+	$cpro=mysqli_fetch_array($cpo);
+	$colz=$cpro[0];
+	$title='Кондиционеры';
+	$lasttitle='Кондиционеры';
+	$ckolvo = (int)($colz/15);
+	if(($colz%15) != 0) {
+		$ckolvo++;
+	}
+	if(!isset($request[2])|| $request[2]==''){
+	$cpage=1;
+	$meta='<meta name="robots" content="noindex, follow"/>';
+	}
+	else{
+		$meta='<meta name="robots" content="noindex, follow"/>';
+		$cpage=(int)substr(strstr($request[2], '='), 1);
+	}
+	if ($cpage<=$ckolvo && $cpage>0){
+	$nulzap=($cpage-1)*15;
+	$p6='SELECT * FROM condit, conprod, concons WHERE conprod.idconprod=condit.proisvoditel AND concons.idconcons=condit.constructia GROUP BY condit.id ORDER BY condit.id LIMIT '.$nulzap.',15';
+	$p7=$db->query($p6);
+	While ($p8=mysqli_fetch_assoc($p7)){
+		if ($p8['nalichie']==1){
+			$p23='<div class="con estnalichie" id="'.$p8['id'].'">Есть в наличии</div>';
+		}
+		else{
+			$p23='<div class="con netnalichie" id="'.$p8['id'].'">Нет в наличии</div>';
+		}
+		if (file_exists("cond/".$p8['name'].".jpeg")){
+			$path="https://condicam.ru/cond/".$p8['name'].".jpeg";
+		}
+		else{
+			$path="https://condicam.ru/kot.jpg";
+		}
+		$e.='<a class="con card cardcon'.$p8['id'].'" href="https://condicam.ru/conditioners/page='.$cpage.'/id='.$p8['id'].'" id="'.$p8['id'].'">
+	<div class="con im" id="'.$p8['id'].'">
+	<img class="con cardim" id="'.$p8['id'].'" src="'.$path.'" alt="Кондиционер '.$p8['name'].'">
+	</div>
+	<strong class="con name" id="'.$p8['id'].'">'.$p8['name'].'</strong>'.$p23.'
+	<div class="con rasresh" id="'.$p8['id'].'">Мощность: &nbsp '.$p8['moshnost'].' Ватт</div>
+	<div class="con ugol" id="'.$p8['id'].'">Площадь: &nbsp '.$p8['ploshad'].' М<sup>2</sup></div>
+	<div class="con cena" id="'.$p8['id'].'">Цена: &nbsp '.$p8['cena'].' руб</div>
+	<div class="corzcon" id="'.$p8['id'].'">
+	<div class="corz con'.$p8['id'].'" style="background: #FCEA66;">В корзину</div></div></a>';
+	}
+	if ($cpage==1 && $cpage<$ckolvo){
+		$nextpage='href="https://condicam.ru/conditioners/page=2"';
+	}
+	if ($cpage>1 && $cpage<$ckolvo){
+		$nextpage='href="https://condicam.ru/conditioners/page='.($cpage+1).'"';
+		$prpage='href="https://condicam.ru/conditioners/page='.($cpage-1).'"';
+	}
+	if ($cpage==$ckolvo){
+		$prpage='href="https://condicam.ru/conditioners/page='.($cpage-1).'"';
+	}
+	if(isset($request[3])&& $request[3]!=''){
+		$id=(int)substr(strstr($request[3], '='), 1);
+		$qs='SELECT count(*) FROM (SELECT * FROM condit, conprod, concons WHERE conprod.idconprod=condit.proisvoditel AND concons.idconcons=condit.constructia GROUP BY condit.id LIMIT '.$nulzap.',15) as cv WHERE  id='.$id;
+	$cpo=$db->query($qs);
+	$cpro=mysqli_fetch_array($cpo);
+	if($cpro[0]==0){
+		$sost='К сожалению, товар с таким идентификатором на этой странице не найден';
+	}
+	else{
+		$meta='<meta name="robots" content="index, follow"/>';
+		$p6='SELECT * FROM condit, concons, conprod WHERE condit.id='.$id.' AND conprod.idconprod=condit.proisvoditel AND concons.idconcons=condit.constructia';
+$cpo=$db->query($p6);
+$cpro=mysqli_fetch_assoc($cpo);
+$title=$cpro['name'];
+if (file_exists("cond/".$cpro['name'].".jpeg")){
+		$path="https://condicam.ru/cond/".$cpro['name'].".jpeg";
+	}
+	else{
+		$path="https://condicam.ru/kot.jpg";
+	}
+
+if ($cpro['nalichie']==1){
+		$p23="<div id='".$cpro['id']."' class='estnalichieb'>Есть в наличии</div>";
+	}
+	else{
+		$p23="<div id='".$cpro['id']."' class='netnalichieb'>Нет в наличии</div>";
+	}
+if ($cpro['ochlazhdenie']==1){
+	$frm.='Охлаждение ';
+}
+if ($cpro['ventilyacia']==1){
+	$frm.='Вентиляция ';
+}
+if ($cpro['obogrev']==1){
+	$frm.='Обогрев ';
+}
+if ($cpro['osushenie']==1){
+	$frm.='Осушение ';
+}
+if ($cpro['invertor']==1){
+	$sredi.='Да ';
+}
+else{
+	$sredi.='Нет ';
+}
+if ($cpro['tipvnutbl']==1){
+	$tvb.='Мобильный ';
+}
+else{
+	$tvb.='Настенный ';
+}
+$p26="<div id='".$cpro['id']."' class='corzcon'><div class='corzco' style='color: #3433FF; background: #FCEA66;' id='".$cpro['id']."'>В корзину</div></div>";
+$card= "<div class='cardbigcam' >
+		<div class='nameback' >
+			<div class='sr1'>
+			<div class='strelka' id='cam' ><img class='back' src='https://condicam.ru/back.svg'></div>
+		</div>
+			<strong class='namecam' >".$cpro['name']."</strong>
+		</div>
+		<div class='imcencorz'>
+			<div class='imbig'>
+	<img class='cardimbig' alt='Кондиционер ".$cpro['name']."' src='".$path."'>
+			</div>
+			<div class='cencorz'>
+			<div class='cencon'><div class='cencam'>Цена:</div><div class='zn'>&nbsp ".$cpro['cena']."руб</div></div>".$p23.$p26."
+		</div>
+		</div>
+		<div class='ophar'>
+			<div class='opharv'>
+				<div class='op'>Описание</div>
+				<div class='har'>Характеристики</div>
+			</div>
+			<div class='opharcon'>
+				<div class='opv'>
+					<div>".$cpro['opisaniecon']."</div>
+				</div>
+				<div class='harv'>
+					<div class='conv'>
+					<div class='pro'>Производитель:</div><div class='sod'>&nbsp ".$cpro['connameprod']."</div>
+					</div>
+					<div class='conv'>
+					<div class='cnstr'>Конструкция:</div><div class='sod'>&nbsp ".$cpro['nameconcons']."</div>
+</div>
+					<div class='conv'>
+					<div class='angle'>Мощность:</div><div class='sod'>&nbsp ".$cpro['moshnost']."Ватт</div>
+</div>
+					<div class='conv'>
+					<div class='formati'>Режимы работы:</div><div class='sod'>&nbsp ".$frm."</div>
+</div>
+					<div class='conv'>
+					<div class='sredi'>Инвертор:</div><div class='sod'>&nbsp ".$sredi."</div>
+</div>
+					<div class='conv'>
+					<div class='tempd'>Тип внутреннего блока:</div><div class='sod'>&nbsp ".$tvb."</div>
+</div>
+					<div class='conv'>
+					<div class='rasres'>Рекомендуемая площадь:</div><div class='sod'>&nbsp ".$cpro['ploshad']."М<sup>2</sup></div>
+</div>
+					<div class='conv'>
+					<div class='ms'>Уровень шума:</div><div class='sod'>&nbsp ".$cpro['shum']."Дб</div>
+</div>
+					<div class='conv'>
+					<div class='ws'>Ширина внутреннего блока:</div><div class='sod'> &nbsp".$cpro['shirina']."См</div>
+</div>
+				</div>
+			</div>
+		</div>
+	</div>";
+	$sost=1;
+	}
+	}
+	else{
+	$meta='<meta name="robots" content="noindex, follow"/>';
+	$sost=0;
+	}
+	}
+	else{
+		$e ='<strong style="font-family: B612 Mono, monospace;">Такой страницы пока не существует(</strong>';
+		$sost=0;
+	}
+}
+
+if ($request[1]=='cameras'){
+	$otkr='<!—noindex—><!—googleoff: index—>';
+	$zakr='<!—googleon: index—><!—/noindex—>';
+	$meta='<meta name="robots" content="noindex, follow"/>';
+	$cr='kam';
+	$qs='SELECT count(*) FROM vc';
+	$cpo=$db->query($qs);
+	$cpro=mysqli_fetch_array($cpo);
+	$colz=$cpro[0];
+	$title='Видеонаблюдение';
+	$lasttitle='Видеонаблюдение';
+	$ckolvo = (int)($colz/15);
+	if(($colz%15) != 0) {
+		$ckolvo++;
+	}
+	if(!isset($request[2])|| $request[2]==''){
+	$cpage=1;
+	}
+	else{
+		$cpage=(int)substr(strstr($request[2], '='), 1);
+	}
+	if ($cpage<=$ckolvo && $cpage>0){
+	$nulzap=($cpage-1)*15;
+	$p6='SELECT * FROM vc, camprod, cons WHERE camprod.produserid=vc.produser AND cons.cid=vc.construct GROUP BY vc.id ORDER BY vc.id LIMIT '.$nulzap.',15';
+	$p7=$db->query($p6);
+	While ($p8=mysqli_fetch_assoc($p7)){
+		if ($p8['nalichie']==1){
+			$p23='<div class="cam estnalichie" id="'.$p8['id'].'">Есть в наличии</div>';
+		}
+		else{
+			$p23='<div class="cam netnalichie" id="'.$p8['id'].'">Нет в наличии</div>';
+		}
+		if (file_exists("cam/".$p8['name'].".jpeg")){
+		$path="https://condicam.ru/cam/".$p8['name'].".jpeg";
+		}
+		else{
+		$path="https://condicam.ru/kot.jpg";
+		}
+		$e.='<a class="cam card cardcam'.$p8['id'].'" href="https://condicam.ru/cameras/page='.$cpage.'/id='.$p8['id'].'" id="'.$p8['id'].'">
+		<div class="cam im" id="'.$p8['id'].'">
+		<img class="cam cardim" id="'.$p8['id'].'" alt="Камера видеонаблюдения '.$p8['name'].'" src="'.$path.'">
+		</div>
+		<strong class="cam name" id="'.$p8['id'].'">'.$p8['name'].'</strong>
+		'.$p23.'
+		<div class="cam rasresh" id="'.$p8['id'].'">Разрешение: &nbsp '.$p8['rasreshenie'].' МП</div>
+		<div class="cam ugol" id="'.$p8['id'].'">Угол: &nbsp '.$p8['ugol'].'°</div>
+		<div class="cam cena" id="'.$p8['id'].'">Цена: &nbsp '.$p8['price'].' руб</div>
+		<div class="corzcam" id="'.$p8['id'].'">
+		<div class="corz cam'.$p8['id'].'" style="background: #FCEA66;">В корзину</div>
+		</div>
+		</a>';
+	}
+	if ($cpage==1 && $cpage<$ckolvo){
+		$nextpage='href="https://condicam.ru/cameras/page=2"';
+	}
+	if ($cpage>1 && $cpage<$ckolvo){
+		$nextpage='href="https://condicam.ru/cameras/page='.($cpage+1).'"';
+		$prpage='href="https://condicam.ru/cameras/page='.($cpage-1).'"';
+	}
+	if ($cpage==$ckolvo){
+		$prpage='href="https://condicam.ru/cameras/page='.($cpage-1).'"';
+	}
+	if(isset($request[3])&& $request[3]!=''){
+		$id=(int)substr(strstr($request[3], '='), 1);
+		$qs='SELECT count(*) FROM (SELECT * FROM vc, camprod, cons WHERE camprod.produserid=vc.produser AND cons.cid=vc.construct GROUP BY vc.id LIMIT '.$nulzap.',15) as cv WHERE  id='.$id;
+	$cpo=$db->query($qs);
+	$cpro=mysqli_fetch_array($cpo);
+	if($cpro[0]==0){
+		$sost='К сожалению, товар с таким идентификатором на этой странице не найден';
+	}
+	else{
+		$meta='<meta name="robots" content="index, follow"/>';
+		$p6='SELECT * FROM vc, cons, camprod WHERE vc.id='.$id.' AND camprod.produserid=vc.produser AND cons.cid=vc.construct';
+$cpo=$db->query($p6);
+$cpro=mysqli_fetch_assoc($cpo);
+$title=$cpro['name'];
+if (file_exists("cam/".$cpro['name'].".jpeg")){
+		$path="https://condicam.ru/cam/".$cpro['name'].".jpeg";
+	}
+	else{
+		$path="https://condicam.ru/kot.jpg";
+	}
+
+if ($cpro['nalichie']==1){
+		$p23="<div id='".$cpro['id']."' class='estnalichieb'>Есть в наличии</div>";
+	}
+	else{
+		$p23="<div id='".$cpro['id']."' class='netnalichieb'>Нет в наличии</div>";
+	}
+if ($cpro['AHD']==1){
+	$frm.='AHD ';
+}
+if ($cpro['TVI']==1){
+	$frm.='TVI ';
+}
+if ($cpro['CVI']==1){
+	$frm.='CVI ';
+}
+if ($cpro['CVBS']==1){
+	$frm.='CVBS ';
+}
+if ($cpro['pomeshenie']==1 AND $cpro['ulitsa']==1){
+	$sredi.='Помещение и улица ';
+}
+else{
+	if ($cpro['pomeshenie']==1){
+		$sredi.='Помещение';
+	}
+	if ($cpro['ulitsa']==1){
+		$sredi.='Улица';
+	}
+}
+$tempd.="от ".$cpro['mint']."°С до ".$cpro['maxt']."°С";
+if ($cpro['mobsov']==1){
+	$ms.='да';
+}
+else{
+	$ms.='нет';
+}
+if ($cpro['wireless']==1){
+	$ws.='да';
+}
+else{
+	$ws.='нет';
+}
+if ($cpro['simcards']==1){
+	$sc.='да';
+}
+else{
+	$sc.='нет';
+}
+if ($cpro['datchdvizh']==1){
+	$dadv.='да';
+}
+else{
+	$dadv.='нет';
+}
+if ($cpro['AV']==1){
+	$av.='да';
+}
+else{
+	$av.='нет';
+}
+if ($cpro['nightmode']==1){
+	$nm.='да';
+}
+else{
+	$nm.='нет';
+}
+if ($cpro['audio']==1){
+	$aud.='да';
+}
+else{
+	$aud.='нет';
+}
+if ($cpro['memorycard']==1){
+	$mc.='да';
+}
+else{
+	$mc.='нет';
+}
+if ($cpro['P2P']==1){
+	$p2p.='да';
+}
+else{
+	$p2p.='нет';
+}
+if ($cpro['Onvif']==1){
+	$of.='да';
+}
+else{
+	$of.='нет';
+}
+$p26="<div id='".$cpro['id']."' class='corzcam'><div class='corzca' style='color: #3433FF; background: #FCEA66;' id='".$cpro['id']."'>В корзину</div></div>";
+$card="<div class='cardbigcam' >
+		<div class='nameback' >
+			<div class='sr1'>
+			<div class='strelka' id='cam' ><img class='back' src='https://condicam.ru/back.svg'></div>
+		</div>
+			<strong class='namecam' >".$cpro['name']."</strong>
+		</div>
+		<div class='imcencorz'>
+			<div class='imbig'>
+	<img class='cardimbig' alt='Камера видеонаблюдения ".$cpro['name']."' src='".$path."'>
+			</div>
+			<div class='cencorz'>
+			<div class='cencon'><div class='cencam'>Цена:</div><div class='zn'>&nbsp ".$cpro['price']."руб</div></div>".$p23.$p26."
+		</div>
+		</div>
+		<div class='ophar'>
+			<div class='opharv'>
+				<div class='op'>Описание</div>
+				<div class='har'>Характеристики</div>
+			</div>
+			<div class='opharcon'>
+				<div class='opv'>
+					<div>".$cpro['opisaniecam']."</div>
+				</div>
+				<div class='harv'>
+					<div class='conv'>
+					<div class='pro'>Производитель:</div><div class='sod'>&nbsp ".$cpro['nameconstruct']."</div>
+					</div>
+					<div class='conv'>
+					<div class='cnstr'>Конструкция:</div><div class='sod'>&nbsp ".$cpro['nameconst']."</div>
+</div>
+					<div class='conv'>
+					<div class='angle'>Угол обзора:</div><div class='sod'>&nbsp ".$cpro['ugol']."°</div>
+</div>
+					<div class='conv'>
+					<div class='formati'>Форматы видеонаблюдения:</div><div class='sod'>&nbsp ".$frm."</div>
+</div>
+					<div class='conv'>
+					<div class='sredi'>Допустимые среды работы:</div><div class='sod'>&nbsp ".$sredi."</div>
+</div>
+					<div class='conv'>
+					<div class='tempd'>Температурный диапазон:</div><div class='sod'>&nbsp ".$tempd."</div>
+</div>
+					<div class='conv'>
+					<div class='rasres'>Разрешение:</div><div class='sod'>&nbsp ".$cpro['rasreshenie']."Мп</div>
+</div>
+					<div class='conv'>
+					<div class='ms'>Совместимость со смартфонами:</div><div class='sod'>&nbsp ".$ms."</div>
+</div>
+					<div class='conv'>
+					<div class='ws'>Беспроводное подключение:</div><div class='sod'>&nbsp ".$ws."</div>
+</div>
+					<div class='conv'>
+					<div class='sc'>Поддержка сим-карт:</div><div class='sod'>&nbsp ".$sc."</div>
+</div>
+					<div class='conv'>
+					<div class='dadv'>Датчик движения:</div><div class='sod'> &nbsp".$dadv."</div>
+</div>
+					<div class='conv'>
+					<div class=AV>Защита от вандализма:</div><div class='sod'> &nbsp".$av."</div>
+</div>
+					<div class='conv'>
+					<div class='nm'>Ночной режим:</div><div class='sod'>&nbsp ".$nm."</div>
+</div>
+					<div class='conv'>
+					<div class='aud'>Поддержка аудио:</div><div class='sod'>&nbsp".$aud."</div>
+</div>
+					<div class='conv'>
+					<div class='mc'>Запись на карту памяти:</div><div class='sod'> &nbsp".$mc."</div>
+</div>
+					<div class='conv'>
+					<div class='p2p'>Протокол Р2Р:</div><div class='sod'> &nbsp".$p2p."</div>
+</div>
+					<div class='conv'>
+					<div class='OV'>Технология OnVif:</div><div class='sod'> &nbsp".$of."</div>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>";
+	$sost=1;
+	}
+	}
+	else{
+		$meta='<meta name="robots" content="noindex, follow"/>';
+		$sost=0;
+	}
+	}
+	else{
+		$e ='<strong style="font-family: B612 Mono, monospace;">Такой страницы пока не существует(</strong>';
+		$sost=0;
+	}
+}
+
+if(($request[1]!='glavnaya') && ($request[1]!='conditioners') && ($request[1]!='cameras')){
+$cr='unknown';
+	$cpage='1';
+	$ckolvo='0';
+	$sost=1;
+if($request[1]==''){
+	$meta='<meta name="robots" content="index, follow"/>';
+	$otkr='';
+	$zakr='';
+	$cr='gl';
+	$cpage='1';
+	$ckolvo='0';
+	$sost=0;
+	$title='Главная';
+}
+}
+?>
+<?php
+echo
+"<!DOCTYPE html> <!-- Объявление формата документа -->
+<html>
+<head> <!-- Техническая информация о документе -->
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>".$meta."
+<meta http-equiv='X-UA-Compatible' content='ie=edge'> <!-- Определяем кодировку символов документа -->
+<title>".$title."</title> <!-- Задаем заголовок документа -->
+<link rel='stylesheet' type='text/css' href='https://condicam.ru/style.css'>
+<script type='text/javascript' src='https://condicam.ru/jquery-min-3.5.1.js'></script>
+</head>
+<body>
+<div id='p_prldr'>
+			<div class='svg_anm'></div>
+	</div>
+<script type='text/javascript'>
+"
+?>
+<?php
+print_r("var preloader = document.querySelector('#p_prldr');
+        preloader.style.opacity='1';")
+?>
+<?php
+echo"
+</script>
+<div class='header1'>
+<div class='sh'><div class='logo'><img class='log' src='https://condicam.ru/Logo.svg'></div><div class='phone'><a class='tn' href='tel:+74951234567'>+7 (495) 123-45-67</a><img class='socs' src='https://condicam.ru/whatsapp.svg'><img class='socs' src='https://condicam.ru/telegram.svg'><img class='socs' src='https://condicam.ru/viber.svg'></div></div>
+<div class='aa'>
+	<div class='bb'><div class='cc'>
+		Заказать обратный звонок
+</div></div></div>
+<div class='land1'><div class='ofer'>
+<div class='ob'>Устанавливаем кондиционеры и системы видеонаблюдения от ведущих мировых производителей.</div>
+</div>
+<div class='pl'>
+<div class='plc'>
+<div class='pl1'><img class='ic' src='https://condicam.ru/payment-method.svg'><div class='pl2'>Оплата только после выполнения работ</div></div>
+<div class='pl1'><img class='ic' src='https://condicam.ru/clean.svg'><div class='pl2'>Все чисто, аккуратно и хирургически точно</div></div>
+<div class='pl1'><img class='ic' src='https://condicam.ru/clock.svg'><div class='pl2'>Работы будут завершены менее чем за полдня</div></div></div></div></div>
+<div class='crt'><img class='tony' src='https://condicam.ru/tony.png'></div></div>
+	<div class='vce'>
+<div class='header2'>
+	<div id='ct2' class='ct'><a class='ct3'>Чат</a><div class='schet'></div></div>
+<nav>
+	<ul class='nav-links'>
+		<li class='li ct' id='ct'><a id='ct'>Чат</a><div class='schet'></div></li>
+		<li class='li' id='gl'><a href='https://condicam.ru/glavnaya' >Главная</a></li>
+		<li class='li' id='kon'><a href='https://condicam.ru/conditioners/page=1'>Кондиционеры</a></li>
+		<li class='li' id='kam'><a href='https://condicam.ru/cameras/page=1'>Видеонаблюдение</a></li>
+		<li class='li' id='corzina'><a>Корзина</a><div class='schetchik'>0</div></li>
+	</ul>
+</nav>
+<div class='burger'>
+		<div class='line line1'></div>
+		<div class='line line2'></div>
+		<div class='line line3'></div>
+		<div class='mn'>Меню</div>
+	</div>
+</div>
+<div class='filt'>";
+include '1.php';
+echo "</div>
+<div class='catalog-conteiner'>
+	<div class='content'>
+		<div id='p_prld'>
+			<div class='svg_anm'></div>
+	</div>
+	<div class='contentcardcam'>".
+	$card."
+	</div>".$otkr."
+	<div class='tekst'>
+		<div id='t1t' class='tekstskartinkami'>Учитывая ключевые сценарии поведения, синтетическое тестирование прекрасно подходит для реализации благоприятных перспектив. Тщательные исследования конкурентов функционально разнесены на независимые элементы. Внезапно, сторонники тоталитаризма в науке будут заблокированы в рамках своих собственных рациональных ограничений.</div>
+		<div id='t2t' class='tekstskartinkami'><img class='kot' src='https://condicam.ru/kot.jpg'></div>
+		<div id='t3t' class='tekstskartinkami'><img class='kot' src='https://condicam.ru/kot.jpg'></div>
+		<div id='t4t' class='tekstskartinkami'>В частности, существующая теория в значительной степени обусловливает важность системы массового участия. Выбранный нами инновационный путь требует анализа как самодостаточных, так и внешне зависимых концептуальных решений.</div>
+
+		<div id='t5t' class='tekstskartinkami'>В рамках спецификации современных стандартов, сделанные на базе интернет-аналитики выводы будут функционально разнесены на независимые элементы. Задача организации, в особенности же повышение уровня гражданского сознания, в своём классическом представлении, допускает внедрение распределения внутренних резервов и ресурсов. Принимая во </div>
+		<div id='t6t' class='tekstskartinkami'><img class='kot' src='https://condicam.ru/kot.jpg'></div>
+		<div id='t7t' class='tekstskartinkami'><img class='kot' src='https://condicam.ru/kot.jpg'></div>
+		<div id='t8t' class='tekstskartinkami'>Ключевые особенности структуры проекта формируют глобальную экономическую сеть и при этом - подвергнуты целой серии независимых исследований. Ключевые особенности структуры проекта смешаны с не уникальными данными до степени совершенной неузнаваемости, из-за чего возрастает их статус бесполезности. Повседневная практика показывает, </div>
+		<div id='t9t' class='tekstskartinkami'>Ключевые особенности структуры проекта формируют глобальную экономическую сеть и при этом - подвергнуты целой серии независимых исследований. Ключевые особенности структуры проекта смешаны с не уникальными данными до степени совершенной неузнаваемости, из-за чего возрастает их статус бесполезности. Повседневная практика показывает, </div>
+		<div id='t10t' class='tekstskartinkami'><img class='kot' src='https://condicam.ru/kot.jpg'></div>
+		</div>".$zakr."
+	<div class='catalog'>
+		<div class='tovar'>";
+		echo $e;
+		echo "</div>
+		<div class='navigation'>
+			<div class='inside'>
+				<div class='left'>
+				<a id='vlevo' ";
+				echo $prpage;
+				echo ">
+					<img class='pages' src='https://condicam.ru/pages2.svg'>
+				</a>
+			</div>
+			<div class='center'>
+			".$cpage." / ".$ckolvo."
+			</div>
+			<div class='right'>
+				<a id='vpravo' ";
+				echo $nextpage;
+				echo ">
+					<img class='pages' src='https://condicam.ru/pages2.svg'>
+				</a>
+			</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+</div>
+<div class='chatcon'>
+<div class='bigchat'>
+	</div>
+</div>
+<script type='text/javascript'>
+	window.page=".$cpage.";
+	window.lr='".$cr."';
+	window.kolvo=".$ckolvo.";".
+	"window.tovarsost='".$sost."';"."
+	window.lasthref='".$lasthref."';
+	window.lasttitle='".$lasttitle."';
+	if (localStorage.getItem('camcorz')==null){
+	localStorage.setItem('camcorz','');
+	window.camcorz='';
+	}
+	else{
+		window.camcorz=localStorage.getItem('camcorz');
+	}
+	if (localStorage.getItem('concorz')==null){
+	localStorage.setItem('concorz','');
+	window.concorz='';
+	}
+	else{
+		window.concorz=localStorage.getItem('concorz');
+	}
+	if (window.camcorz=='' && window.concorz==''){
+		document.querySelector('.schetchik').innerHTML='0';
+	}
+	else{
+		count=0;
+		if (window.camcorz!=''){
+			count+=window.camcorz.match(/camcorz/g).length;
+			kor=window.camcorz.split('&camcorz%5B%5D=');
+			kor.forEach((i) => {
+				sel='.cam'+i;
+				b=document.querySelector(sel);
+				if(b!=null && sel!='.cam'){
+					b.innerHTML='В корзине';
+					b.style.background='#3433FF';
+				  b.style.color='#FCE434';
+				}
+				b=document.querySelector('.corzca');
+				if(b!=null){
+				if(b.id==i){
+					b.innerHTML='В корзине';
+					b.style.background='#3433FF';
+				  b.style.color='#FCE434';
+				}
+			}
+			});
+
+		}
+		if (window.concorz!=''){
+			count+=window.concorz.match(/concorz/g).length;
+			kor=window.concorz.split('&concorz%5B%5D=');
+			kor.forEach((i) => {
+				sel='.con'+i;
+				b=document.querySelector(sel);
+				if(b!=null&&sel!='.con'){
+					b.innerHTML='В корзине';
+					b.style.background='#3433FF';
+				  b.style.color='#FCE434';
+				}
+				b=document.querySelector('.corzco');
+				if(b!=null&&b!='.corzco'){
+				if(b.id==i){
+					b.innerHTML='В корзине';
+					b.style.background='#3433FF';
+				  b.style.color='#FCE434';
+				}
+			}
+			});
+		}
+		document.querySelector('.schetchik').innerHTML=count;
+	}
+</script>";
+include '1,5.php';
+include '2.php';
+?>

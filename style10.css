@@ -1,0 +1,38 @@
+.dan{
+	margin-top: 300px;
+	width: 100%;
+background-color: #F6A1BA;
+max-width: 1024px;
+display: flex;
+min-height: 20px;
+border-style: solid;
+border-width: 3px;
+border-color: #000;
+overflow-y: scroll;
+margin-left: 30%;
+}
+.res{
+	max-width: 50px;
+	margin-top: 300px;
+background-color: #F6A1BA;
+max-width: 1024px;
+display: flex;
+max-height: 500px;
+min-height: 300px;
+border-style: solid;
+border-width: 3px;
+border-color: #000;
+overflow-y: scroll;
+margin-left: 30%;
+}
+.knop{
+	display: flex;
+	background-color: #FF3333;
+	height: 30px;
+	max-width: 250px;
+	display: flex;
+	vertical-align:middle;
+	font-size: 25px;
+	margin-top: 30px;
+	margin-left: 30%;
+}

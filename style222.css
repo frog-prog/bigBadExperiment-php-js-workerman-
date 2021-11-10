@@ -1,0 +1,359 @@
+*{
+	margin: 0;
+}
+.vnok{
+	display: none;
+	flex-direction: column;
+	height: 100%;
+	width:100%;
+	justify-content: flex-start;
+	padding-bottom: 10px;
+	border-bottom-color: #000;
+border-radius: 7px;
+border-bottom-color: #000;
+border-bottom-style: solid;
+border-top-color: #000;
+border-top-style: solid;
+border-top-color: #000;
+}
+.section{
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding-top: 10px;
+	padding-bottom:10px; 	
+}
+.message{
+	display: flex;
+	max-width: 70%;
+	padding: 10px;
+	background-color: #F7D500;
+	border-radius: 7px;
+	flex-direction: column;
+	margin-left: 10px;
+	margin-right: 10px;
+	color: #0F2236
+}
+.lastmessage{
+	display: flex;
+	width: 100%;
+	background-color: #F7D500;
+	border-radius: 7px;
+	flex-direction: column;
+	margin-left: 10px;
+	padding: 4px;
+	margin-right: 10px;
+	color: #0F2236
+}
+.FromName{
+	width: 100%;
+	justify-content: flex-start;
+	color: gray;
+	font-size: 16px;
+	font-weight: 700;
+	border-bottom: 1px solid gray;
+}
+.MessageText{
+    width: 100%;
+    font-weight: 700;
+	justify-content: flex-start;
+	padding:4px;
+	font-size: 16px;
+	display: flex;
+}
+.date{
+	width: 100%;
+	font-weight: 700;
+	justify-content: flex-end;
+	padding-top:4px;
+	padding-bottom: 4px;
+	font-size: 16px;
+	border-top: 1px solid gray;
+}
+.readedl,.readedr{
+	display: flex;
+	height: 10px;
+	width: 10px;
+	background-color:#FF3333;
+	border-radius: 50%;
+	margin-top: 20px;
+}
+.chat-result{
+	width:100%;
+	height:100%;
+	display: flex;
+	overflow-y: scroll;
+	flex-direction: column-reverse;
+}
+.chatcon{
+	display: flex;
+	justify-content: center;
+	margin-top: 30px;
+	width: 100%;
+}
+.str1{
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	background-color: #F7D500;
+	border-radius: 7px 7px 0 0;
+}
+.str2{
+	cursor: pointer;
+	height: 50px;
+	width: 50px;
+	display: flex;
+	border-radius: 50%;
+	justify-content: center;
+	vertical-align: middle;
+	transform: rotate(90deg);
+}
+.usersection{
+	margin-top: 8px;
+	width: 90%;
+	margin-left: 5%;
+	margin-right: 5%;
+	border-style: solid;
+	border-color: #000;
+	border-width: 3px;
+	border-radius: 5px;
+	cursor: pointer;
+}
+.usersection:hover{
+	border-color: #FF3333;
+	background-color: #fff;
+}
+.sobname{
+	display: flex;
+	text-align: center;
+	width: 100%;
+	padding-top: 10px;
+	padding-right: 50px;
+	justify-content: center;
+	word-break: break-all;
+}
+.usercon, .consoob{
+	display: flex;
+	padding-top: 3px;
+	flex-direction: row;
+	width: 100%;
+	justify-content: space-between;
+}
+.usercon{
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
+	border-bottom-color: #000;   
+	flex-wrap: wrap;
+}
+.consoobvn{
+	display: flex;
+	width: 80%;
+}
+.vseti{
+	margin-right: 4px;
+	word-break: break-all;
+}
+.username{
+	margin-left: 4px;
+	word-break: break-all;
+}
+@media screen and (max-width: 600px){
+.vseti{
+	margin-top: 5px;
+	margin-right: 0;
+	width: 100%;
+	display: flex;
+	justify-content: center; 
+	word-break: break-word;
+	border-top-style: solid;
+	border-top-width: 2px;
+	text-align: center;
+	border-top-color: #000; 
+
+}
+.username{
+	display: flex;
+	text-align: center;
+	width: 100%;
+	margin-left: 0;
+	margin-top: 5px;
+	justify-content: center;
+	word-break: break-all;
+}
+}
+@media screen and (max-width: 365px){
+.sobname{
+	padding-top: 5px;
+	padding-right: 20px;
+}
+}
+.unr{
+	display: flex;
+	justify-content: center;
+	vertical-align: middle;
+	width: 20%;
+}
+.unrv{
+	display: flex;
+	border-radius: 50%;
+	height: 20px;
+	min-width: 20px;
+	background-color: #FF3333;
+	justify-content: center;
+	color: #fff;
+	margin-top: 30px; 
+}
+.bigchat{
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	width: 100%;
+	max-width: 700px;
+}
+.chats {
+ 	width: 100%;
+    height:85%;
+    border-radius: 0 0 7px 7px;
+    background-color: #2CBEC7;
+    display: flex;
+    flex-direction: column;
+}
+.chatlist{
+overflow-y: scroll;
+background-color: #D3FFC1;
+display: flex;
+flex-direction: column;
+width: 100%;
+height: 100%;
+border-bottom-color: #000;
+border-radius: 7px;
+border-bottom-color: #000;
+border-bottom-style: solid;
+border-top-color: #000;
+border-top-style: solid;
+border-top-color: #000;
+}
+.info2, .info{
+	width: 100%;
+	min-height: 17px;
+	text-align: center;
+	display: flex;
+	z-index: 10;
+	opacity:1;
+	font-weight: 700;
+	font-size: 16px;
+	border-radius: 7px;
+	color: #fff;
+	background-color: #2C629B;
+	flex-direction: column;
+}
+.info3{
+	width: 100%;
+	min-height: 17px;
+	text-align: center;
+	display: flex;
+	z-index: 10;
+	opacity:0;
+	font-weight: 700;
+	font-size: 16px;
+	border-radius: 7px;
+	color: #fff;
+	background-color: #2C629B;
+	flex-direction: column;
+}
+.vnname, .vntime{
+	display: flex;
+	justify-content: center;
+	vertical-align: middle;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	width: 100%;
+	height: 50%;
+}
+
+
+.control{
+	width: 100%;
+	height: 22px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	margin-top: 10px;
+}
+.chat{
+	width: 80%;
+	height: 100%;
+	resize: none;
+	vertical-align: middle;
+	padding-top: 3px;
+	padding-left: 3px;
+	font-size: 20px;
+   font-family: Arial;
+	border-radius: 7px;
+	border-color: #FF3333;
+	border-width: 1px;
+}
+.send{
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	font-weight: 700;
+	padding-top: 3px;
+	font-size: 20px;
+	height: 100%;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: 7px;
+	background-color: #F7D500;
+}
+#p_prl{
+z-index: 10000;
+display: none;
+justify-content: center;
+width: 90%;
+height: 90%;
+padding: 5%;
+}
+#p_prldr{
+position: fixed;
+left: 0;
+top: 0;
+right:0;
+bottom:0;
+background: #afd9f7;
+z-index: 300;
+display: flex;
+justify-content: center;
+width: 100%;
+height: 100%;
+}
+.svg_anm, .svg_an {
+width: 25%;
+background: url('5 (1).svg') center center no-repeat;
+background-size:contain;    
+margin: -16px 0 0 -16px;
+}
+.vce{
+	min-height: 100%;
+}
+.header2 {
+	height: 30px;
+	background: linear-gradient(to right, #33cc8c, #00bf6f);
+	width: 100%;
+	justify-content: space-between;
+	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
